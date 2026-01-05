@@ -78,3 +78,58 @@ test("combineEventHandlers combined handler works with no arguments", () => {
   expect(childCalled).toBe(true);
   expect(slotCalled).toBe(true);
 });
+
+test("combineEventHandlers does not execute slotHandler when childHandler throws error", () => {
+  let slotExecuted = false;
+  const childHandler = () => {
+    throw new Error("Child error");
+  };
+  const slotHandler = () => {
+    slotExecuted = true;
+  };
+
+  const combined = combineEventHandlers(childHandler, slotHandler);
+
+  expect(() => combined?.()).toThrow("Child error");
+  expect(slotExecuted).toBe(false);
+});
+
+test("combineEventHandlers preserves event.preventDefault() behavior", () => {
+  const mockEvent = {
+    defaultPrevented: false,
+    preventDefault() {
+      this.defaultPrevented = true;
+    },
+  };
+
+  const childHandler = (event: typeof mockEvent) => event.preventDefault();
+  const slotHandler = (event: typeof mockEvent) => {
+    expect(event.defaultPrevented).toBe(true);
+  };
+
+  const combined = combineEventHandlers(childHandler, slotHandler);
+  combined?.(mockEvent);
+
+  expect(mockEvent.defaultPrevented).toBe(true);
+});
+
+test("combineEventHandlers executes both handlers even after stopPropagation", () => {
+  const mockEvent = {
+    propagationStopped: false,
+    stopPropagation() {
+      this.propagationStopped = true;
+    },
+  };
+
+  const childHandler = (event: typeof mockEvent) => event.stopPropagation();
+  let slotExecuted = false;
+  const slotHandler = () => {
+    slotExecuted = true;
+  };
+
+  const combined = combineEventHandlers(childHandler, slotHandler);
+  combined?.(mockEvent);
+
+  expect(slotExecuted).toBe(true);
+  expect(mockEvent.propagationStopped).toBe(true);
+});

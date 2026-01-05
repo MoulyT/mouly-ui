@@ -1,6 +1,7 @@
-import { test, expect } from "vitest";
+import { test, expect, vi } from "vitest";
 import { render } from "vitest-browser-react";
 import { Slot } from "@/components/Slot";
+import { Fragment } from "react";
 
 test("Slot renders child element", async () => {
   const screen = await render(
@@ -78,4 +79,39 @@ test("Slot returns null when children is not a valid element", async () => {
       return button;
     })
     .toBeNull();
+});
+
+test("Slot returns null when given array of children", async () => {
+  await render(
+    <Slot>
+      {[<button key="1">First</button>, <button key="2">Second</button>]}
+    </Slot>,
+  );
+
+  await expect.poll(() => document.querySelectorAll("button").length).toBe(0);
+});
+
+test("Slot renders Fragment but props do not affect Fragment children", async () => {
+  const consoleErrorSpy = vi
+    .spyOn(console, "error")
+    .mockImplementation(() => {});
+
+  const screen = await render(
+    <Slot className="slot-class" data-custom="slot-value">
+      <Fragment>
+        <span data-testid="fragment-child">Content</span>
+      </Fragment>
+    </Slot>,
+  );
+
+  const child = screen.getByTestId("fragment-child");
+  await expect.element(child).toBeVisible();
+  await expect.element(child).not.toHaveClass("slot-class");
+  await expect.element(child).not.toHaveAttribute("data-custom");
+
+  expect(consoleErrorSpy).toHaveBeenCalled();
+  const errorCall = consoleErrorSpy.mock.calls[0][0];
+  expect(errorCall).toMatch(/Invalid prop.*supplied to.*React\.Fragment/);
+
+  consoleErrorSpy.mockRestore();
 });

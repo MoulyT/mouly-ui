@@ -1,7 +1,12 @@
-import type { PropsWithChildren, Ref } from "react";
+import type { HTMLAttributes, ReactNode, Ref } from "react";
 
-export type SlotProps = PropsWithChildren & {
+export type SlotProps = HTMLAttributes<HTMLElement> & {
+  children?: ReactNode;
   ref?: Ref<HTMLElement>;
+};
+
+export type SlottableProps = {
+  children: React.ReactNode;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

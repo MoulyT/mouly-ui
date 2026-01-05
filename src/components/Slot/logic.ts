@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { Ref } from "react";
-import type { Handler } from "./types";
+import {
+  isValidElement,
+  type ReactElement,
+  type ReactNode,
+  type Ref,
+} from "react";
+import type { Handler, SlottableProps } from "./types";
+import { SLOTTABLE_IDENTIFIER } from ".";
 
 /** Composes two event handlers. Child executes first, then parent. */
 export function combineEventHandlers(
@@ -60,4 +66,15 @@ export function composeRef<T>(...refs: (Ref<T> | undefined)[]) {
       setRef(ref, value);
     });
   };
+}
+
+export function isSlottable(
+  child: ReactNode,
+): child is ReactElement<SlottableProps> {
+  return (
+    isValidElement(child) &&
+    typeof child.type === "function" &&
+    "__slottableId" in child.type &&
+    child.type.__slottableId === SLOTTABLE_IDENTIFIER
+  );
 }
