@@ -27,6 +27,7 @@ export default defineConfig({
     },
   },
   test: {
+    reporters: ["default", "hanging-process"],
     projects: [
       {
         extends: true,
