@@ -1,14 +1,21 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   isValidElement,
+  type CSSProperties,
   type ReactElement,
   type ReactNode,
   type Ref,
+  type RefObject,
 } from "react";
-import type { Handler, SlottableProps } from "./types";
+import type {
+  AnyElementProps,
+  Handler,
+  MergedProps,
+  SlottableProps,
+} from "./types";
 import { SLOTTABLE_IDENTIFIER } from ".";
 
-/** Composes two event handlers. Child executes first, then parent. */
+const EVENT_HANDLER_REGEX = /^on[A-Z]/;
+
 export function combineEventHandlers(
   childHandler: Handler | undefined,
   slotHandler: Handler | undefined,
@@ -22,49 +29,51 @@ export function combineEventHandlers(
   };
 }
 
-/** Merges props with special handling: events composed, className concatenated, style merged. */
-export function mergeProps(
-  slotProps: Record<string, any>,
-  childProps: Record<string, any>,
-) {
-  const mergedProps = { ...childProps };
-  const EVENT_HANDLER_REGEX = /on[A-Z]/;
+export function mergeProps<
+  S extends AnyElementProps,
+  C extends AnyElementProps,
+>(slotProps: S, childProps: C): MergedProps<S, C> {
+  const mergedProps = { ...childProps } as MergedProps<S, C>;
 
-  for (const propKey in childProps) {
+  for (const propKey in slotProps) {
     const slotValue = slotProps[propKey];
     const childValue = childProps[propKey];
+
     if (EVENT_HANDLER_REGEX.test(propKey)) {
-      mergedProps[propKey] = combineEventHandlers(
-        childValue as Handler,
-        slotValue as Handler,
+      (mergedProps as AnyElementProps)[propKey] = combineEventHandlers(
+        childValue as Handler | undefined,
+        slotValue as Handler | undefined,
       );
     } else if (propKey === "className") {
-      mergedProps[propKey] = [slotValue, childValue].filter(Boolean).join(" ");
+      (mergedProps as AnyElementProps)[propKey] = [slotValue, childValue]
+        .filter(Boolean)
+        .join(" ");
     } else if (propKey === "style") {
-      mergedProps[propKey] = {
-        ...(slotValue as object),
-        ...(childValue as object),
+      (mergedProps as AnyElementProps)[propKey] = {
+        ...(slotValue as CSSProperties | undefined),
+        ...(childValue as CSSProperties | undefined),
       };
+    } else if (!(propKey in childProps)) {
+      (mergedProps as AnyElementProps)[propKey] = slotValue;
     }
   }
-  return { ...slotProps, ...mergedProps };
+
+  return mergedProps as MergedProps<S, C>;
 }
 
-/** Updates a ref (callback or object) with a value. */
-export function setRef<T>(ref: Ref<T> | undefined, value: T) {
+export function setRef<T>(ref: Ref<T> | undefined, value: T): void {
   if (typeof ref === "function") {
     ref(value);
   } else if (ref) {
-    ref.current = value;
+    (ref as RefObject<T>).current = value;
   }
 }
 
-/** Creates a callback ref that updates multiple refs. */
-export function composeRef<T>(...refs: (Ref<T> | undefined)[]) {
+export function composeRef<T>(
+  ...refs: (Ref<T> | undefined)[]
+): (value: T | null) => void {
   return (value: T | null) => {
-    refs.forEach((ref) => {
-      setRef(ref, value);
-    });
+    refs.forEach((ref) => setRef(ref, value));
   };
 }
 
@@ -77,4 +86,18 @@ export function isSlottable(
     "__slottableId" in child.type &&
     child.type.__slottableId === SLOTTABLE_IDENTIFIER
   );
+}
+
+export function getElementProps(element: ReactElement): AnyElementProps {
+  return element.props as AnyElementProps;
+}
+
+export function getElementRef<T = HTMLElement>(
+  props: AnyElementProps,
+): Ref<T> | undefined {
+  const ref = props.ref;
+  if (ref === null || ref === undefined) {
+    return undefined;
+  }
+  return ref as Ref<T>;
 }
