@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, within } from "storybook/test";
+import { expect } from "storybook/test";
 import { Icon } from "./index";
 
 // Sample icons for stories
@@ -94,11 +94,10 @@ export const Default: Story = {
     size: "m",
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const icon = canvas.getByRole("img", { hidden: true });
+    const svg = canvasElement.querySelector("svg");
 
-    await expect(icon).toBeInTheDocument();
-    await expect(icon).toHaveAttribute("aria-hidden", "true");
+    await expect(svg).toBeInTheDocument();
+    await expect(svg).toHaveAttribute("aria-hidden", "true");
   },
 };
 
@@ -157,10 +156,9 @@ export const AccessibleIcon: Story = {
     ariaHidden: false,
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const icon = canvas.getByRole("img", { hidden: false });
+    const svg = canvasElement.querySelector("svg");
 
-    await expect(icon).toHaveAttribute("aria-hidden", "false");
+    await expect(svg).toHaveAttribute("aria-hidden", "false");
   },
 };
 

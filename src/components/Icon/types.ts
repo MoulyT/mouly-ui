@@ -3,19 +3,18 @@ import type { iconStyles } from "./styles";
 
 export interface IconProps extends VariantProps<typeof iconStyles> {
   /**
-   * The SVG component to render as the icon.
+   * The SVG component to render as the icon
    */
   component: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
 
   /**
-   * When true, hides the icon from assistive technologies.
-   * Set to false if the icon conveys meaning.
+   * Whether the icon should be hidden from assistive technologies
    * @default true
    */
   ariaHidden?: boolean;
 
   /**
-   * Additional CSS classes to apply to the icon wrapper.
+   * Additional CSS classes to apply
    */
   className?: string;
 }
