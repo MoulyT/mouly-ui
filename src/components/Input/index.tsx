@@ -1,6 +1,14 @@
 import { useState, useId, useRef } from "react";
 import { clsx } from "clsx";
 import { Icon } from "@/components/Icon";
+import { composeRef } from "@/components/Slot/logic";
+import {
+  hasFieldError,
+  getHelperId,
+  getAriaDescribedBy,
+  getHelperContent,
+  getHelperVariant,
+} from "@/components/shared/form-logic";
 import {
   inputContainerStyles,
   inputLabelStyles,
@@ -8,14 +16,8 @@ import {
   inputStyles,
   inputHelperStyles,
 } from "./styles";
-import { composeRef } from "@/components/Slot/logic";
 import {
   resolveInputType,
-  hasInputError,
-  getAriaDescribedBy,
-  getHelperId,
-  getHelperContent,
-  getHelperVariant,
   getToggleAriaLabel,
   togglePasswordWithCursorRestore,
 } from "./logic";
@@ -81,10 +83,10 @@ export function Input({
   const generatedId = useId();
   const internalRef = useRef<HTMLInputElement | null>(null);
 
-  const inputId = id ?? generatedId;
-  const inputError = hasInputError(error, errorMessage);
+  const fieldId = id ?? generatedId;
+  const inputError = hasFieldError(error, errorMessage);
   const inputType = resolveInputType(type, showPassword);
-  const ariaDescribedBy = getAriaDescribedBy(inputId, errorMessage, hintText);
+  const ariaDescribedBy = getAriaDescribedBy(fieldId, errorMessage, hintText);
   const helperContent = getHelperContent(errorMessage, hintText);
   const EyeIcon = passwordVisibleIcon ?? DefaultEyeIcon;
   const EyeSlashIcon = passwordHiddenIcon ?? DefaultEyeSlashIcon;
@@ -96,7 +98,7 @@ export function Input({
   return (
     <div className={clsx(inputContainerStyles(), className)}>
       <label
-        htmlFor={inputId}
+        htmlFor={fieldId}
         className={inputLabelStyles({ hidden: hideLabel })}
       >
         {label}
@@ -105,7 +107,7 @@ export function Input({
       <div className={inputWrapperStyles({ hasError: inputError })}>
         <input
           ref={composeRef(internalRef, ref)}
-          id={inputId}
+          id={fieldId}
           name={name}
           type={inputType}
           disabled={disabled}
@@ -141,7 +143,7 @@ export function Input({
 
       {helperContent && (
         <p
-          id={getHelperId(inputId)}
+          id={getHelperId(fieldId)}
           className={inputHelperStyles({
             variant: getHelperVariant(errorMessage),
           })}

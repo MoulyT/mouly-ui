@@ -1,43 +1,13 @@
+/**
+ * Input-specific logic utilities.
+ * For shared form logic, see @/components/shared/form-logic.ts
+ */
+
 export function resolveInputType(type: string, showPassword: boolean): string {
   if (type === "password" && showPassword) {
     return "text";
   }
   return type;
-}
-
-export function hasInputError(
-  error: boolean | undefined,
-  errorMessage: string | undefined,
-): boolean {
-  return error === true || !!errorMessage;
-}
-
-export function getAriaDescribedBy(
-  inputId: string,
-  errorMessage: string | undefined,
-  hintText: string | undefined,
-): string | undefined {
-  if (errorMessage || hintText) {
-    return `${inputId}-helper`;
-  }
-  return undefined;
-}
-
-export function getHelperId(inputId: string): string {
-  return `${inputId}-helper`;
-}
-
-export function getHelperContent(
-  errorMessage: string | undefined,
-  hintText: string | undefined,
-): string | undefined {
-  return errorMessage || hintText;
-}
-
-export function getHelperVariant(
-  errorMessage: string | undefined,
-): "error" | "hint" {
-  return errorMessage ? "error" : "hint";
 }
 
 export function getToggleAriaLabel(showPassword: boolean): string {

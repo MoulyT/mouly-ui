@@ -1,14 +1,16 @@
 import { describe, test, expect } from "vitest";
 import {
   resolveInputType,
-  hasInputError,
+  getToggleAriaLabel,
+  saveCursorPosition,
+} from "@/components/Input/logic";
+import {
+  hasFieldError,
   getAriaDescribedBy,
   getHelperId,
   getHelperContent,
   getHelperVariant,
-  getToggleAriaLabel,
-  saveCursorPosition,
-} from "@/components/Input/logic";
+} from "@/components/shared/form-logic";
 
 describe("resolveInputType", () => {
   test("returns text when type is password and showPassword is true", () => {
@@ -26,22 +28,22 @@ describe("resolveInputType", () => {
   });
 });
 
-describe("hasInputError", () => {
+describe("hasFieldError", () => {
   test("returns true when error is true", () => {
-    expect(hasInputError(true, undefined)).toBe(true);
+    expect(hasFieldError(true, undefined)).toBe(true);
   });
 
   test("returns true when errorMessage is provided", () => {
-    expect(hasInputError(false, "Error message")).toBe(true);
+    expect(hasFieldError(false, "Error message")).toBe(true);
   });
 
   test("returns true when both error and errorMessage are provided", () => {
-    expect(hasInputError(true, "Error message")).toBe(true);
+    expect(hasFieldError(true, "Error message")).toBe(true);
   });
 
   test("returns false when no error", () => {
-    expect(hasInputError(false, undefined)).toBe(false);
-    expect(hasInputError(undefined, undefined)).toBe(false);
+    expect(hasFieldError(false, undefined)).toBe(false);
+    expect(hasFieldError(undefined, undefined)).toBe(false);
   });
 });
 
