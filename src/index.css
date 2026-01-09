@@ -1,1 +1,29 @@
 @import "tailwindcss";
+
+@layer utilities {
+  .scrollbar-styled {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(209 213 219) transparent;
+
+    &:hover {
+      scrollbar-color: rgb(156 163 175) transparent;
+    }
+
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgb(209 213 219);
+      border-radius: 9999px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: rgb(156 163 175);
+    }
+  }
+}
